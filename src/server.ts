@@ -1,40 +1,47 @@
-import 'dotenv/config'
-
-import fastify from 'fastify'
+import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
 import multipart from '@fastify/multipart'
+import staticLib from '@fastify/static'
 import { memoriesRoutes } from './routes/memories'
 import { authRoutes } from './routes/auth'
 import { uploadRoutes } from './routes/upload'
-import { resolve } from 'node:path'
+import { resolve } from 'path'
+import { env } from 'process'
 
-const app = fastify()
-
-app.register(multipart)
-
-app.register(require('@fastify/static'), {
-  root: resolve(__dirname, '../uploads'),
-  prefix: '/uploads/',
-})
-
-app.register(jwt, {
-  secret: 'spacetime',
-})
-// HTTP METHOD : GET, POST, PUT, PATHC, DELETE, HEAD
-app.register(cors, {
-  origin: true, // todas URLS de front-end poderão acessar o back-end
-  // origin: ['http://localhost:3000', 'http://site.com.br/'],
-})
-app.register(authRoutes)
-app.register(uploadRoutes)
-app.register(memoriesRoutes)
-
-app
-  .listen({
-    port: 3333,
-    host: '0.0.0.0',
+export function init() {
+  const app = Fastify({
+    logger: false,
   })
-  .then(() => {
-    console.log('😎 HTTP server running on http://localhost:3333')
+
+  app.register(multipart)
+
+  app.register(cors, {
+    origin: ['https://projeto-nlw-five.vercel.app/', 'http://localhost:3000'],
   })
+
+  app.register(jwt, {
+    secret: `${env.SECRET}`,
+  })
+
+  app.register(memoriesRoutes)
+  app.register(authRoutes)
+  app.register(uploadRoutes)
+  app.register(staticLib, {
+    root: resolve(__dirname, '../uploads'),
+    prefix: '/uploads',
+  })
+
+  return app
+}
+
+// Execute the app when called directly( ex.: "npm run dev")
+if (require.main === module) {
+  init()
+    .listen({
+      port: 3333,
+    })
+    .then(() => {
+      console.log('Running on port 3333')
+    })
+}
