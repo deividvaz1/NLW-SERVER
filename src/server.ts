@@ -14,11 +14,11 @@ export function init() {
     logger: false,
   })
 
-  app.register(multipart)
-
   app.register(cors, {
-    origin: ['https://projeto-nlw-five.vercel.app/', 'http://localhost:3000'],
+    origin: ['https://nlw-artur.vercel.app', 'http://localhost:3000'],
   })
+
+  app.register(multipart)
 
   app.register(jwt, {
     secret: `${env.SECRET}`,
