@@ -15,7 +15,7 @@ export function init() {
   })
 
   app.register(cors, {
-    origin: ['https://projeto-nlw-five.vercel.app/', 'http://localhost:3000'],
+    origin: true,
   })
 
   app.register(multipart)
